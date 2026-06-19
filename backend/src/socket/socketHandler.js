@@ -49,6 +49,20 @@ const registerSocketHandlers = (io) => {
           );
       }
     );
+    socket.on(
+      "code-output",
+      ({ roomId, output }) => {
+        console.log(
+          "OUTPUT EVENT:",
+          roomId,
+          output
+        );
+        io.to(roomId).emit(
+          "receive-output",
+          output
+        );
+      }
+    );
 
     socket.on("disconnecting", () => {
       socket.rooms.forEach((roomId) => {

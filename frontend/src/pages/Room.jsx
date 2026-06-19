@@ -98,26 +98,56 @@ export default function Room() {
     };
   }, [])
 
+  useEffect(() => {
+  const handleOutput = (output) => {
+    console.log(
+      "RECEIVED OUTPUT:",
+      output
+    );
 
-const handleRunCode = async () => {
-  try {
-    console.log("Run clicked");
+    setOutput(output);
+  };
 
-    setIsRunning(true);
+  socket.on(
+    "receive-output",
+    handleOutput
+  );
 
-    const result = await runCode(code);
+  return () => {
+    socket.off(
+      "receive-output",
+      handleOutput
+    );
+  };
+}, []);
 
-    console.log(result);
 
-    setOutput(result.output);
-  } catch (error) {
-    console.error(error);
+  const handleRunCode = async () => {
+    try {
+      console.log("Run clicked");
 
-    setOutput("Failed to execute code");
-  } finally {
-    setIsRunning(false);
+      const result = await runCode(code);
+
+      setOutput(result.output);
+
+      socket.emit("code-output", {
+        roomId,
+        output: result.output,
+      });
+
+      console.log(result);
+
+      setOutput(result.output);
+    } catch (error) {
+      console.error(error);
+
+      setOutput("Failed to execute code");
+    } finally {
+      setIsRunning(false);
+    }
   }
-}
+
+  
 
   return (
     <div className="h-screen bg-slate-950 text-white flex flex-col">
