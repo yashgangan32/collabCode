@@ -6,6 +6,7 @@ import { socket } from "../socket/socket";
 
 export default function Room() {
   const { roomId } = useParams();
+  const [connectedUsers, setConnectedUsers] =useState(1);
 
   const [code, setCode] = useState(`function hello() {
   console.log("Hello World");
@@ -75,6 +76,25 @@ export default function Room() {
     });
   };
 
+//to handle connected users
+  useEffect(() => {
+  const handleRoomUsers = (count) => {
+    setConnectedUsers(count);
+  };
+
+  socket.on(
+    "room-users",
+    handleRoomUsers
+  );
+
+  return () => {
+    socket.off(
+      "room-users",
+      handleRoomUsers
+    );
+  };
+}, [])
+
   return (
     <div className="h-screen bg-slate-950 text-white flex flex-col">
       {/* Header */}
@@ -121,7 +141,7 @@ export default function Room() {
                 Connected Users
               </p>
 
-              <p>1</p>
+              <p>{connectedUsers}</p>
             </div>
 
             <div>

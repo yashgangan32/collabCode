@@ -5,10 +5,7 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 
 import connectDB from "./config/db.js";
-import {
-  getOrCreateRoom,
-  updateRoomCode,
-} from "./services/roomService.js";
+import registerSocketHandlers from "./socket/socketHandler.js";
 
 dotenv.config();
 
@@ -27,56 +24,11 @@ const io = new Server(httpServer, {
   },
 });
 
-io.on("connection", (socket) => {
-  console.log("Connected:", socket.id);
-
-  socket.on("join-room", async (roomId) => {
-    socket.join(roomId);
-
-    const room = await getOrCreateRoom(
-      roomId
-    );
-
-    socket.emit(
-      "load-code",
-      room.code
-    );
-
-    console.log(
-      `${socket.id} joined ${roomId}`
-    );
-  });
-
-  socket.on(
-    "code-change",
-    async ({ roomId, code }) => {
-      await updateRoomCode(
-        roomId,
-        code
-      );
-
-      socket
-        .to(roomId)
-        .emit(
-          "receive-code",
-          code
-        );
-    }
-  );
-
-  socket.on("disconnect", () => {
-    console.log(
-      "Disconnected:",
-      socket.id
-    );
-  });
-});
+registerSocketHandlers(io);
 
 httpServer.listen(
   process.env.PORT || 5000,
   () => {
-    console.log(
-      "Server running"
-    );
+    console.log("Server running");
   }
 );
