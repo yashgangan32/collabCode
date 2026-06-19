@@ -3,10 +3,13 @@ import { useParams } from "react-router-dom";
 import Editor from "../components/Editor";
 import { useEffect } from "react";
 import { socket } from "../socket/socket";
+import { runCode } from "../services/executionService";
 
 export default function Room() {
   const { roomId } = useParams();
-  const [connectedUsers, setConnectedUsers] =useState(1);
+  const [connectedUsers, setConnectedUsers] = useState(1);
+  const [output, setOutput] = useState("");
+  const [isRunning, setIsRunning] = useState(false);
 
   const [code, setCode] = useState(`function hello() {
   console.log("Hello World");
@@ -50,18 +53,18 @@ export default function Room() {
 
   //to load code
   useEffect(() => {
-  const handleLoadCode = (savedCode) => {
-    if (savedCode) {
-      setCode(savedCode);
-    }
-  };
+    const handleLoadCode = (savedCode) => {
+      if (savedCode) {
+        setCode(savedCode);
+      }
+    };
 
-  socket.on("load-code", handleLoadCode);
+    socket.on("load-code", handleLoadCode);
 
-  return () => {
-    socket.off("load-code", handleLoadCode);
-  };
-}, []);
+    return () => {
+      socket.off("load-code", handleLoadCode);
+    };
+  }, []);
 
   //code change handler
   const handleCodeChange = (
@@ -76,24 +79,45 @@ export default function Room() {
     });
   };
 
-//to handle connected users
+  //to handle connected users
   useEffect(() => {
-  const handleRoomUsers = (count) => {
-    setConnectedUsers(count);
-  };
+    const handleRoomUsers = (count) => {
+      setConnectedUsers(count);
+    };
 
-  socket.on(
-    "room-users",
-    handleRoomUsers
-  );
-
-  return () => {
-    socket.off(
+    socket.on(
       "room-users",
       handleRoomUsers
     );
-  };
-}, [])
+
+    return () => {
+      socket.off(
+        "room-users",
+        handleRoomUsers
+      );
+    };
+  }, [])
+
+
+const handleRunCode = async () => {
+  try {
+    console.log("Run clicked");
+
+    setIsRunning(true);
+
+    const result = await runCode(code);
+
+    console.log(result);
+
+    setOutput(result.output);
+  } catch (error) {
+    console.error(error);
+
+    setOutput("Failed to execute code");
+  } finally {
+    setIsRunning(false);
+  }
+}
 
   return (
     <div className="h-screen bg-slate-950 text-white flex flex-col">
@@ -115,6 +139,15 @@ export default function Room() {
             className="px-3 py-2 rounded bg-slate-800 hover:bg-slate-700"
           >
             Copy Room ID
+          </button>
+          <button
+            onClick={handleRunCode}
+            disabled={isRunning}
+            className="px-3 py-2 rounded bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50"
+          >
+            {isRunning
+              ? "Running..."
+              : "Run"}
           </button>
         </div>
       </header>
@@ -158,8 +191,9 @@ export default function Room() {
               Output
             </h3>
 
-            <div className="h-40 rounded bg-slate-900 border border-slate-800 p-3 text-sm text-slate-400">
-              Output will appear here
+            <div className="h-40 overflow-auto rounded bg-slate-900 border border-slate-800 p-3 text-sm text-slate-300 whitespace-pre-wrap">
+              {output ||
+                "Output will appear here"}
             </div>
           </div>
         </aside>

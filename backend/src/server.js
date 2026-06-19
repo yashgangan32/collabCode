@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import { createServer } from "http";
 import { Server } from "socket.io";
+import executionRoutes from "./routes/executionRoutes.js";
 
 import connectDB from "./config/db.js";
 import registerSocketHandlers from "./socket/socketHandler.js";
@@ -15,6 +16,9 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+
+
+app.use("/api", executionRoutes);
 
 const httpServer = createServer(app);
 
