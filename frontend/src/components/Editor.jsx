@@ -1,6 +1,5 @@
 import { useEffect, useRef } from "react";
 import MonacoEditor from "@monaco-editor/react";
-
 export default function Editor({
   code,
   setCode,
@@ -9,6 +8,7 @@ export default function Editor({
   highlightedRange,
 }) {
   const editorRef = useRef(null);
+  const decorationsRef = useRef([]);
 
   const handleEditorMount = (
     editor,
@@ -23,9 +23,9 @@ export default function Editor({
 
         if (
           selection.startLineNumber ===
-            selection.endLineNumber &&
+          selection.endLineNumber &&
           selection.startColumn ===
-            selection.endColumn
+          selection.endColumn
         ) {
           setSelectedRange(
             null
@@ -50,25 +50,38 @@ export default function Editor({
     )
       return;
 
-    editorRef.current.revealLineInCenter(
+    const editor =
+      editorRef.current;
+
+    editor.revealLineInCenter(
       highlightedRange.startLine
     );
 
-    editorRef.current.setSelection(
-      {
-        startLineNumber:
-          highlightedRange.startLine,
+    decorationsRef.current =
+      editor.deltaDecorations(
+        decorationsRef.current,
+        [
+          {
+            range: {
+              startLineNumber:
+                highlightedRange.startLine,
 
-        startColumn: 1,
+              startColumn: 1,
 
-        endLineNumber:
-          highlightedRange.endLine,
+              endLineNumber:
+                highlightedRange.endLine,
 
-        endColumn: 1,
-      }
-    );
+              endColumn: 1,
+            },
 
-    editorRef.current.focus();
+            options: {
+              isWholeLine: true,
+              className:
+                "comment-highlight",
+            },
+          },
+        ]
+      );
   }, [highlightedRange]);
 
   return (
