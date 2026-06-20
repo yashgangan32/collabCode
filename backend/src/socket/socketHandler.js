@@ -4,6 +4,10 @@ import {
   updateRoomOutput,
   updateRoomLanguage
 } from "../services/roomService.js";
+import {
+  createComment,
+  getRoomComments,
+} from "../services/commentService.js";
 
 const registerSocketHandlers = (io) => {
   io.on("connection", (socket) => {
@@ -16,6 +20,10 @@ const registerSocketHandlers = (io) => {
       const room = await getOrCreateRoom(
         roomId
       );
+      const comments =
+        await getRoomComments(
+          roomId
+        );
 
       socket.emit(
         "load-room",
@@ -24,6 +32,10 @@ const registerSocketHandlers = (io) => {
           language: room.language,
           lastOutput: room.lastOutput,
         }
+      );
+      socket.emit(
+        "load-comments",
+        comments
       );
 
       const roomSize =
@@ -39,6 +51,23 @@ const registerSocketHandlers = (io) => {
         `${socket.id} joined ${roomId}`
       );
     });
+
+    socket.on(
+    "add-comment",
+    async (commentData) => {
+      const comment =
+        await createComment(
+          commentData
+        );
+
+      io.to(
+        comment.roomId
+      ).emit(
+        "receive-comment",
+        comment
+      );
+    }
+  );
 
     //syncing room code
     socket.on(

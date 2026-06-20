@@ -12,7 +12,12 @@ export default function Room() {
   const [isRunning, setIsRunning] = useState(false);
   const [language, setLanguage] = useState("javascript");
   const [code, setCode] = useState(`console.log("Hello World")`);
-  const [selectedRange,setSelectedRange] = useState(null);
+  const [selectedRange, setSelectedRange] = useState(null);
+  const [showCommentBox, setShowCommentBox] = useState(false);
+  const [commentText, setCommentText] = useState("");
+  const [comments, setComments] = useState([]);
+  const [highlightedRange, setHighlightedRange] = useState(null);
+
 
   const copyRoomId = async () => {
     await navigator.clipboard.writeText(roomId);
@@ -20,33 +25,33 @@ export default function Room() {
   };
 
   //to handle required things when join
-useEffect(() => {
-  socket.connect();
+  useEffect(() => {
+    socket.connect();
 
-  socket.emit(
-    "join-room",
-    roomId
-  );
-
-  const handleConnect = () => {
     socket.emit(
       "join-room",
       roomId
     );
-  };
 
-  socket.on(
-    "connect",
-    handleConnect
-  );
+    const handleConnect = () => {
+      socket.emit(
+        "join-room",
+        roomId
+      );
+    };
 
-  return () => {
-    socket.off(
+    socket.on(
       "connect",
       handleConnect
     );
-  };
-}, [roomId]);
+
+    return () => {
+      socket.off(
+        "connect",
+        handleConnect
+      );
+    };
+  }, [roomId]);
 
   //to handle received code by user in room
   useEffect(() => {
@@ -209,6 +214,51 @@ useEffect(() => {
     };
   }, []);
 
+  useEffect(() => {
+    const handleLoadComments =
+      (comments) => {
+        setComments(
+          comments
+        );
+      };
+
+    socket.on(
+      "load-comments",
+      handleLoadComments
+    );
+
+    return () => {
+      socket.off(
+        "load-comments",
+        handleLoadComments
+      );
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleReceiveComment =
+      (comment) => {
+        setComments(
+          (prev) => [
+            ...prev,
+            comment,
+          ]
+        );
+      };
+
+    socket.on(
+      "receive-comment",
+      handleReceiveComment
+    );
+
+    return () => {
+      socket.off(
+        "receive-comment",
+        handleReceiveComment
+      );
+    };
+  }, []);
+
 
   return (
     <div className="h-screen bg-slate-950 text-white flex flex-col">
@@ -253,6 +303,9 @@ useEffect(() => {
             language={language}
             setSelectedRange={
               setSelectedRange
+            }
+            highlightedRange={
+              highlightedRange
             }
           />
         </div>
@@ -315,13 +368,6 @@ useEffect(() => {
           </div>
 
           <div className="mt-8">
-            {selectedRange && (
-  <button
-    className="mb-3 px-3 py-2 rounded bg-blue-600"
-  >
-    Add Comment
-  </button>
-)}
 
             <h3 className="font-semibold mb-2">
               Output
@@ -331,6 +377,105 @@ useEffect(() => {
               {output ||
                 "Output will appear here"}
             </div>
+            {selectedRange && (
+              <button
+                onClick={() =>
+                  setShowCommentBox(true)
+                }
+                className="mb-3 px-3 py-2 rounded bg-blue-600"
+              >
+                Add Comment
+              </button>
+            )}
+            {showCommentBox && (
+              <div className="mb-4 rounded border border-slate-700 p-3">
+                <p className="mb-2 text-sm">
+                  Selected Lines:
+                  {" "}
+                  {
+                    selectedRange.startLine
+                  }
+                  -
+                  {
+                    selectedRange.endLine
+                  }
+                </p>
+
+                <textarea
+                  value={commentText}
+                  onChange={(e) =>
+                    setCommentText(
+                      e.target.value
+                    )
+                  }
+                  placeholder="Enter comment..."
+                  className="w-full rounded bg-slate-900 border border-slate-700 p-2"
+                  rows={4}
+                />
+
+                <div className="mt-2 flex gap-2">
+                  <button
+                    onClick={() => {
+                      socket.emit(
+                        "add-comment",
+                        {
+                          roomId,
+
+                          startLine:
+                            selectedRange.startLine,
+
+                          endLine:
+                            selectedRange.endLine,
+                          text: commentText,
+                        }
+                      );
+                      setCommentText("");
+                      setShowCommentBox(
+                        false
+                      );
+                    }}
+                    className="px-3 py-2 rounded bg-slate-700"
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      console.log({
+                        selectedRange,
+                        commentText,
+                      });
+                    }}
+                    className="px-3 py-2 rounded bg-green-600"
+                  >
+                    Save
+                  </button>
+                </div>
+              </div>
+            )}
+            {comments.map((comment) => (
+              <div
+                key={comment._id}
+                onClick={() =>
+                  setHighlightedRange({
+                    startLine:
+                      comment.startLine,
+                    endLine:
+                      comment.endLine,
+                  })
+                }
+                className="cursor-pointer"
+              >
+                <p>
+                  Lines {
+                    comment.startLine
+                  }-
+                  {comment.endLine}
+                </p>
+
+                <p>{comment.text}</p>
+              </div>
+            ))}
           </div>
         </aside>
       </div>

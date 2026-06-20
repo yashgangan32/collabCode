@@ -1,42 +1,75 @@
+import { useEffect, useRef } from "react";
 import MonacoEditor from "@monaco-editor/react";
 
 export default function Editor({
   code,
   setCode,
-  language, setSelectedRange,
+  language,
+  setSelectedRange,
+  highlightedRange,
 }) {
+  const editorRef = useRef(null);
 
+  const handleEditorMount = (
+    editor,
+    monaco
+  ) => {
+    editorRef.current = editor;
 
-  //handling actions in editor box
-const handleEditorMount = (
-  editor,
-  monaco
-) => {
-  editor.onDidChangeCursorSelection(
-  (event) => {
-    const selection =
-      event.selection;
+    editor.onDidChangeCursorSelection(
+      (event) => {
+        const selection =
+          event.selection;
 
+        if (
+          selection.startLineNumber ===
+            selection.endLineNumber &&
+          selection.startColumn ===
+            selection.endColumn
+        ) {
+          setSelectedRange(
+            null
+          );
+          return;
+        }
+
+        setSelectedRange({
+          startLine:
+            selection.startLineNumber,
+          endLine:
+            selection.endLineNumber,
+        });
+      }
+    );
+  };
+
+  useEffect(() => {
     if (
-      selection.startLineNumber ===
-        selection.endLineNumber &&
-      selection.startColumn ===
-        selection.endColumn
-    ) {
-      setSelectedRange(null);
+      !highlightedRange ||
+      !editorRef.current
+    )
       return;
-    }
 
-    setSelectedRange({
-      startLine:
-        selection.startLineNumber,
+    editorRef.current.revealLineInCenter(
+      highlightedRange.startLine
+    );
 
-      endLine:
-        selection.endLineNumber,
-    });
-  }
-);
-};
+    editorRef.current.setSelection(
+      {
+        startLineNumber:
+          highlightedRange.startLine,
+
+        startColumn: 1,
+
+        endLineNumber:
+          highlightedRange.endLine,
+
+        endColumn: 1,
+      }
+    );
+
+    editorRef.current.focus();
+  }, [highlightedRange]);
 
   return (
     <MonacoEditor
@@ -54,7 +87,9 @@ const handleEditorMount = (
         fontSize: 14,
         automaticLayout: true,
       }}
-      onMount={handleEditorMount}
+      onMount={
+        handleEditorMount
+      }
     />
   );
 }
