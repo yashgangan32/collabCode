@@ -10,7 +10,40 @@ export default function CommentsPanel({
   comments,
   socket,
   setHighlightedRange,
+  filter,
+  setFilter
 }) {
+
+  const openCount =
+    comments.filter(
+      (comment) =>
+        comment.status === "open"
+    ).length;
+
+  const resolvedCount =
+    comments.filter(
+      (comment) =>
+        comment.status ===
+        "resolved"
+    ).length;
+
+  const filteredComments =
+    comments.filter(
+      (comment) => {
+        if (
+          filter === "all"
+        ) {
+          return true;
+        }
+
+        return (
+          comment.status ===
+          filter
+        );
+      }
+    );
+
+
   return (
     <div className="mt-8">
       <h3 className="font-semibold mb-2">
@@ -88,29 +121,102 @@ export default function CommentsPanel({
           </div>
         </div>
       )}
+      <div className="flex gap-2 mb-3">
+        <button
+          onClick={() =>
+            setFilter("all")
+          }
+          className={`px-2 py-1 rounded ${filter === "all"
+              ? "bg-blue-600"
+              : "bg-slate-700"
+            }`}
+        >
+          All ({comments.length})
+        </button>
 
+        <button
+          onClick={() =>
+            setFilter("open")
+          }
+          className={`px-2 py-1 rounded ${filter === "open"
+              ? "bg-blue-600"
+              : "bg-slate-700"
+            }`}
+        >
+          Open ({openCount})
+        </button>
+
+        <button
+          onClick={() =>
+            setFilter("resolved")
+          }
+          className={`px-2 py-1 rounded ${filter === "resolved"
+              ? "bg-blue-600"
+              : "bg-slate-700"
+            }`}
+        >
+          Resolved ({resolvedCount})
+        </button>
+      </div>
       <div className="space-y-3">
-        {comments.map((comment) => (
-          <div
-            key={comment._id}
-            onClick={() =>
-              setHighlightedRange({
-                startLine:
-                  comment.startLine,
-                endLine:
-                  comment.endLine,
-              })
-            }
-            className="cursor-pointer rounded border border-slate-800 p-2 hover:bg-slate-900"
-          >
-            <p className="text-xs text-slate-400">
-              Lines {comment.startLine}-
-              {comment.endLine}
-            </p>
+        {
+          filteredComments.map((comment) => (
+            <div
+              key={comment._id}
+              onClick={() =>
+                setHighlightedRange({
+                  startLine:
+                    comment.startLine,
+                  endLine:
+                    comment.endLine,
+                })
+              }
+              className="cursor-pointer rounded border border-slate-800 p-2 hover:bg-slate-900"
+            >
+              <p className="text-xs text-slate-400">
+                Lines {comment.startLine}-
+                {comment.endLine}
+              </p>
 
-            <p>{comment.text}</p>
-          </div>
-        ))}
+              <div className="flex items-center justify-between mb-2">
+                <p>Status:</p>
+                <span>
+                  {comment.status ===
+                    "resolved"
+                    ? "🟢 Resolved"
+                    : "🟡 Open"}
+                </span>
+
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+
+                    socket.emit(
+                      "comment-status-change",
+                      {
+                        commentId:
+                          comment._id,
+
+                        status:
+                          comment.status ===
+                            "open"
+                            ? "resolved"
+                            : "open",
+                      }
+                    );
+                  }}
+                  className="text-xs px-2 py-1 rounded bg-slate-700"
+                >
+                  {comment.status ===
+                    "open"
+                    ? "Resolve"
+                    : "Reopen"}
+                </button>
+              </div>
+
+              <p>{comment.text}</p>
+            </div>
+          ))}
       </div>
     </div>
   );

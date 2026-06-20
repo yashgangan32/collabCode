@@ -7,6 +7,7 @@ import {
 import {
   createComment,
   getRoomComments,
+  updateCommentStatus
 } from "../services/commentService.js";
 
 const registerSocketHandlers = (io) => {
@@ -120,6 +121,27 @@ const registerSocketHandlers = (io) => {
         io.to(roomId).emit(
           "receive-output",
           output
+        );
+      }
+    );
+
+    socket.on(
+      "comment-status-change",
+      async ({
+        commentId,
+        status,
+      }) => {
+        const updatedComment =
+          await updateCommentStatus(
+            commentId,
+            status
+          );
+
+        io.to(
+          updatedComment.roomId
+        ).emit(
+          "comment-status-updated",
+          updatedComment
         );
       }
     );

@@ -15,6 +15,8 @@ export default function RoomSidebar({
   setCommentText,
   comments,
   setHighlightedRange,
+  filter,
+  setFilter
 }) {
   return (
     <aside className="w-72 border-l border-slate-800 p-4">
@@ -89,6 +91,8 @@ export default function RoomSidebar({
         setHighlightedRange={
           setHighlightedRange
         }
+        filter={filter}
+        setFilter={setFilter}
       />
     </aside>
   );

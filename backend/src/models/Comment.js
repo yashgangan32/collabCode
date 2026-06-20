@@ -23,6 +23,11 @@ const commentSchema =
         required: true,
         trim: true,
       },
+      status: {
+        type: String,
+        enum: ["open", "resolved"],
+        default: "open",
+      },
     },
     {
       timestamps: true,

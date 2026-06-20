@@ -23,3 +23,17 @@ export const getRoomComments =
       createdAt: 1,
     });
   };
+ 
+  export const updateCommentStatus =
+  async (
+    commentId,
+    status
+  ) => {
+    return Comment.findByIdAndUpdate(
+      commentId,
+      { status },
+      {
+        returnDocument: "after",
+      }
+    );
+  };

@@ -21,7 +21,7 @@ export default function Room() {
   const [commentText, setCommentText] =useState("");
   const [comments, setComments] =useState([]);
   const [highlightedRange, setHighlightedRange] =useState(null);
-
+  const [filter, setFilter] =useState("all");
   const copyRoomId = async () => {
     await navigator.clipboard.writeText(
       roomId
@@ -262,6 +262,33 @@ export default function Room() {
     };
   }, []);
 
+
+  useEffect(() => {
+    const handleStatusUpdate =
+      (updatedComment) => {
+        setComments((prev) =>
+          prev.map((comment) =>
+            comment._id ===
+            updatedComment._id
+              ? updatedComment
+              : comment
+          )
+        );
+      };
+
+    socket.on(
+      "comment-status-updated",
+      handleStatusUpdate
+    );
+
+    return () => {
+      socket.off(
+        "comment-status-updated",
+        handleStatusUpdate
+      );
+    };
+  }, []);
+
   return (
     <div className="h-screen bg-slate-950 text-white flex flex-col">
       <RoomHeader
@@ -287,6 +314,8 @@ export default function Room() {
         </div>
 
         <RoomSidebar
+        filter={filter}
+setFilter={setFilter}
           connectedUsers={
             connectedUsers
           }
