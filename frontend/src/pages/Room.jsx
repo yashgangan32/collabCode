@@ -19,13 +19,33 @@ export default function Room() {
   };
 
   //USEEFFECTS
-  useEffect(() => {
-    socket.connect(); // 1. Manually establish connection
-    socket.emit("join-room", roomId);
-    return () => {
-      socket.disconnect(); // 2. Cleanup: Leave when room changes or component unmounts
-    };
-  }, [roomId]);
+useEffect(() => {
+  socket.connect();
+
+  socket.emit(
+    "join-room",
+    roomId
+  );
+
+  const handleConnect = () => {
+    socket.emit(
+      "join-room",
+      roomId
+    );
+  };
+
+  socket.on(
+    "connect",
+    handleConnect
+  );
+
+  return () => {
+    socket.off(
+      "connect",
+      handleConnect
+    );
+  };
+}, [roomId]);
 
   //to handle received code by user in room
   useEffect(() => {

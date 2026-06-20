@@ -8,8 +8,18 @@ const runCommand = (command) => {
       { timeout: 5000 },
       (error, stdout, stderr) => {
         if (error) {
-          return reject(
+          const cleanError = (
             stderr || error.message
+          )
+            .split("\n")
+            .find(
+              (line) =>
+                line.includes("Error:")
+            );
+
+          return reject(
+            cleanError ||
+            error.message
           );
         }
 

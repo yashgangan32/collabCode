@@ -7,11 +7,11 @@ export const getOrCreateRoom = async (
   let room = await Room.findOne({
     roomId,
   });
-
+  const starterCode = `console.log("Hello World");`;
   if (!room) {
     room = await Room.create({
       roomId,
-      code: "",
+      code: starterCode,
       language: "javascript",
       lastOutput: "",
     });
