@@ -10,6 +10,7 @@ export default function Room() {
   const [connectedUsers, setConnectedUsers] = useState(1);
   const [output, setOutput] = useState("");
   const [isRunning, setIsRunning] = useState(false);
+  const [language, setLanguage] = useState("javascript");
 
   const [code, setCode] = useState(`function hello() {
   console.log("Hello World");
@@ -99,35 +100,37 @@ export default function Room() {
   }, [])
 
   useEffect(() => {
-  const handleOutput = (output) => {
-    console.log(
-      "RECEIVED OUTPUT:",
-      output
-    );
+    const handleOutput = (output) => {
+      console.log(
+        "RECEIVED OUTPUT:",
+        output
+      );
 
-    setOutput(output);
-  };
+      setOutput(output);
+    };
 
-  socket.on(
-    "receive-output",
-    handleOutput
-  );
-
-  return () => {
-    socket.off(
+    socket.on(
       "receive-output",
       handleOutput
     );
-  };
-}, []);
+
+    return () => {
+      socket.off(
+        "receive-output",
+        handleOutput
+      );
+    };
+  }, []);
 
 
   const handleRunCode = async () => {
     try {
       console.log("Run clicked");
-
-      const result = await runCode(code);
-
+      console.log(language);
+      const result = await runCode(
+  code,
+  language
+);
       setOutput(result.output);
 
       socket.emit("code-output", {
@@ -147,7 +150,7 @@ export default function Room() {
     }
   }
 
-  
+
 
   return (
     <div className="h-screen bg-slate-950 text-white flex flex-col">
@@ -189,6 +192,7 @@ export default function Room() {
           <Editor
             code={code}
             setCode={handleCodeChange}
+            language={language}
           />
         </div>
 
@@ -212,7 +216,25 @@ export default function Room() {
                 Language
               </p>
 
-              <p>JavaScript</p>
+              <select
+                value={language}
+                onChange={(e) =>
+                  setLanguage(e.target.value)
+                }
+                className="w-full mt-2 bg-slate-800 border border-slate-700 rounded px-3 py-2"
+              >
+                <option value="javascript">
+                  JavaScript
+                </option>
+
+                <option value="python">
+                  Python
+                </option>
+
+                <option value="cpp">
+                  C++
+                </option>
+              </select>
             </div>
           </div>
 

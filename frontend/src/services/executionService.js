@@ -1,4 +1,7 @@
-export const runCode = async (code) => {
+export const runCode = async (
+  code,
+  language
+) => {
   const response = await fetch(
     "http://localhost:5000/api/run",
     {
@@ -9,6 +12,7 @@ export const runCode = async (code) => {
       },
       body: JSON.stringify({
         code,
+        language,
       }),
     }
   );

@@ -1,11 +1,14 @@
-import { executeJavaScript } from "../services/executionService.js";
+import { executeCode } from "../services/executionService.js";
 
 export const runCode = async (
   req,
   res
 ) => {
   try {
-    const { code } = req.body;
+    const {
+      code,
+      language,
+    } = req.body;
 
     if (!code) {
       return res.status(400).json({
@@ -13,9 +16,12 @@ export const runCode = async (
         output: "Code is required",
       });
     }
-
+    console.log(req.body);
     const output =
-      await executeJavaScript(code);
+      await executeCode(
+        code,
+        language
+      );
 
     return res.json({
       success: true,

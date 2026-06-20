@@ -1,13 +1,19 @@
 import MonacoEditor from "@monaco-editor/react";
 
-export default function Editor({ code, setCode }) {
+export default function Editor({
+  code,
+  setCode,
+  language,
+}) {
   return (
     <MonacoEditor
       height="100%"
-      language="javascript"
+      language={language}
       theme="vs-dark"
       value={code}
-      onChange={(value) => setCode(value || "")}
+      onChange={(value) =>
+        setCode(value || "")
+      }
       options={{
         minimap: {
           enabled: false,
