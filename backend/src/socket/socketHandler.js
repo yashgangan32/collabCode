@@ -1,12 +1,15 @@
 import {
   getOrCreateRoom,
   updateRoomCode,
+  updateRoomOutput,
+  updateRoomLanguage
 } from "../services/roomService.js";
 
 const registerSocketHandlers = (io) => {
   io.on("connection", (socket) => {
     console.log("Connected:", socket.id);
 
+    //handling when any user joins
     socket.on("join-room", async (roomId) => {
       socket.join(roomId);
 
@@ -15,8 +18,12 @@ const registerSocketHandlers = (io) => {
       );
 
       socket.emit(
-        "load-code",
-        room.code
+        "load-room",
+        {
+          code: room.code,
+          language: room.language,
+          lastOutput: room.lastOutput,
+        }
       );
 
       const roomSize =
@@ -33,6 +40,7 @@ const registerSocketHandlers = (io) => {
       );
     });
 
+    //syncing room code
     socket.on(
       "code-change",
       async ({ roomId, code }) => {
@@ -49,14 +57,37 @@ const registerSocketHandlers = (io) => {
           );
       }
     );
+
+    socket.on(
+      "language-change",
+      async ({
+        roomId,
+        language,
+      }) => {
+        await updateRoomLanguage(
+          roomId,
+          language
+        );
+
+        socket
+          .to(roomId)
+          .emit(
+            "receive-language",
+            language
+          );
+      }
+    );
+
+
+    //syncing code output
     socket.on(
       "code-output",
-      ({ roomId, output }) => {
-        console.log(
-          "OUTPUT EVENT:",
+      async ({ roomId, output }) => {
+        await updateRoomOutput(
           roomId,
           output
         );
+
         io.to(roomId).emit(
           "receive-output",
           output
@@ -64,6 +95,7 @@ const registerSocketHandlers = (io) => {
       }
     );
 
+    //handling while disconnecting
     socket.on("disconnecting", () => {
       socket.rooms.forEach((roomId) => {
         if (roomId === socket.id) return;

@@ -1,6 +1,6 @@
 import { exec } from "child_process";
 import fs from "fs/promises";
-
+import crypto from "crypto";
 const runCommand = (command) => {
   return new Promise((resolve, reject) => {
     exec(
@@ -25,22 +25,25 @@ export const executeCode = async (
 ) => {
   let fileName = "";
   let command = "";
+  const executionId = crypto.randomUUID();
 
   switch (language) {
     case "javascript":
-      fileName = "temp.js";
+      fileName = `temp-${executionId}.js`;
       command = `node ${fileName}`;
       break;
 
     case "python":
-      fileName = "temp.py";
+      fileName = `temp-${executionId}.py`;
       command = `python3 ${fileName}`;
       break;
 
     case "cpp":
-      fileName = "temp.cpp";
+      fileName = `temp-${executionId}.cpp`;
+
       command =
-        "g++ temp.cpp -o temp && ./temp";
+        `g++ ${fileName} -o temp-${executionId} && ./temp-${executionId}`;
+
       break;
 
     default:
@@ -65,7 +68,9 @@ export const executeCode = async (
 
     if (language === "cpp") {
       try {
-        await fs.unlink("temp");
+        await fs.unlink(
+          `temp-${executionId}`
+        );
       } catch { }
     }
   }

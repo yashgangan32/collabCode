@@ -12,6 +12,15 @@ const schema=new mongoose.Schema({
       type: String,
       default: "",
     },
+     language: {
+      type: String,
+      default: "javascript",
+    },
+
+    lastOutput: {
+      type: String,
+      default: "",
+    },
   },
   {
     timestamps: true,

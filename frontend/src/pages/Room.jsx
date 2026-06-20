@@ -11,10 +11,7 @@ export default function Room() {
   const [output, setOutput] = useState("");
   const [isRunning, setIsRunning] = useState(false);
   const [language, setLanguage] = useState("javascript");
-
-  const [code, setCode] = useState(`function hello() {
-  console.log("Hello World");
-}`);
+  const [code, setCode] = useState(`console.log("Hello World")`);
 
   const copyRoomId = async () => {
     await navigator.clipboard.writeText(roomId);
@@ -23,12 +20,10 @@ export default function Room() {
 
   //USEEFFECTS
   useEffect(() => {
-    socket.connect(); // 1. Manually establish connection,mounts on start means run, then after every room id change closes and runs again
-
-    socket.emit("join-room", roomId); // 2. Tell the backend which room to join..nothing but tells server to put this connection into which room by roomid
-    //room id is data, here we are using to group users by roomid(logic handle in backend) just sending roomid from frontend
+    socket.connect(); // 1. Manually establish connection
+    socket.emit("join-room", roomId);
     return () => {
-      socket.disconnect(); // 3. Cleanup: Leave when room changes or component unmounts
+      socket.disconnect(); // 2. Cleanup: Leave when room changes or component unmounts
     };
   }, [roomId]);
 
@@ -54,16 +49,34 @@ export default function Room() {
 
   //to load code
   useEffect(() => {
-    const handleLoadCode = (savedCode) => {
-      if (savedCode) {
-        setCode(savedCode);
-      }
+    const handleLoadRoom = (
+      roomData
+    ) => {
+      setCode(
+        roomData.code || ""
+      );
+
+      setLanguage(
+        roomData.language ||
+        "javascript"
+      );
+
+      setOutput(
+        roomData.lastOutput ||
+        ""
+      );
     };
 
-    socket.on("load-code", handleLoadCode);
+    socket.on(
+      "load-room",
+      handleLoadRoom
+    );
 
     return () => {
-      socket.off("load-code", handleLoadCode);
+      socket.off(
+        "load-room",
+        handleLoadRoom
+      );
     };
   }, []);
 
@@ -128,9 +141,9 @@ export default function Room() {
       console.log("Run clicked");
       console.log(language);
       const result = await runCode(
-  code,
-  language
-);
+        code,
+        language
+      );
       setOutput(result.output);
 
       socket.emit("code-output", {
@@ -150,6 +163,26 @@ export default function Room() {
     }
   }
 
+  useEffect(() => {
+    const handleLanguage =
+      (language) => {
+        setLanguage(
+          language
+        );
+      };
+
+    socket.on(
+      "receive-language",
+      handleLanguage
+    );
+
+    return () => {
+      socket.off(
+        "receive-language",
+        handleLanguage
+      );
+    };
+  }, []);
 
 
   return (
@@ -215,14 +248,29 @@ export default function Room() {
               <p className="text-slate-500">
                 Language
               </p>
-
               <select
                 value={language}
-                onChange={(e) =>
-                  setLanguage(e.target.value)
-                }
+                onChange={(e) => {
+                  const newLanguage =
+                    e.target.value;
+
+                  setLanguage(
+                    newLanguage
+                  );
+
+                  socket.emit(
+                    "language-change",
+                    {
+                      roomId,
+                      language:
+                        newLanguage,
+                    }
+                  );
+                }}
                 className="w-full mt-2 bg-slate-800 border border-slate-700 rounded px-3 py-2"
               >
+
+
                 <option value="javascript">
                   JavaScript
                 </option>
