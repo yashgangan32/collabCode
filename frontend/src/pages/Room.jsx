@@ -11,17 +11,17 @@ import { runCode } from "../services/executionService";
 
 export default function Room() {
   const { roomId } = useParams();
-  const [connectedUsers, setConnectedUsers] =useState(1);
-  const [output, setOutput] =useState("");
-  const [isRunning, setIsRunning] =useState(false);
-  const [language, setLanguage] =useState("javascript");
-  const [code, setCode] =useState(`console.log("Hello World")`);
-  const [selectedRange, setSelectedRange] =useState(null);
-  const [showCommentBox, setShowCommentBox] =useState(false);
-  const [commentText, setCommentText] =useState("");
-  const [comments, setComments] =useState([]);
-  const [highlightedRange, setHighlightedRange] =useState(null);
-  const [filter, setFilter] =useState("all");
+  const [connectedUsers, setConnectedUsers] = useState(1);
+  const [output, setOutput] = useState("");
+  const [isRunning, setIsRunning] = useState(false);
+  const [language, setLanguage] = useState("javascript");
+  const [code, setCode] = useState(`console.log("Hello World")`);
+  const [selectedRange, setSelectedRange] = useState(null);
+  const [showCommentBox, setShowCommentBox] = useState(false);
+  const [commentText, setCommentText] = useState("");
+  const [comments, setComments] = useState([]);
+  const [highlightedRange, setHighlightedRange] = useState(null);
+  const [filter, setFilter] = useState("all");
   const copyRoomId = async () => {
     await navigator.clipboard.writeText(
       roomId
@@ -269,7 +269,7 @@ export default function Room() {
         setComments((prev) =>
           prev.map((comment) =>
             comment._id ===
-            updatedComment._id
+              updatedComment._id
               ? updatedComment
               : comment
           )
@@ -299,23 +299,36 @@ export default function Room() {
       />
 
       <div className="flex-1 flex">
-        <div className="flex-1">
-          <Editor
-            code={code}
-            setCode={handleCodeChange}
-            language={language}
-            setSelectedRange={
-              setSelectedRange
-            }
-            highlightedRange={
-              highlightedRange
-            }
-          />
+        <div className="flex-1 flex flex-col">
+          <div className="h-[65%]">
+            <Editor
+              code={code}
+              setCode={handleCodeChange}
+              language={language}
+              setSelectedRange={
+                setSelectedRange
+              }
+              highlightedRange={
+                highlightedRange
+              }
+            />
+          </div>
+
+          <div className="h-[35%] border-t border-slate-800 p-4">
+            <h3 className="font-semibold mb-2">
+              Output
+            </h3>
+
+            <div className="h-full overflow-auto rounded bg-slate-900 border border-slate-800 p-3 text-sm text-slate-300 whitespace-pre-wrap">
+              {output ||
+                "Output will appear here"}
+            </div>
+          </div>
         </div>
 
         <RoomSidebar
-        filter={filter}
-setFilter={setFilter}
+          filter={filter}
+          setFilter={setFilter}
           connectedUsers={
             connectedUsers
           }

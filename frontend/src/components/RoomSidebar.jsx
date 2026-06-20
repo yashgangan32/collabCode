@@ -7,7 +7,6 @@ export default function RoomSidebar({
   setLanguage,
   roomId,
   socket,
-  output,
   selectedRange,
   showCommentBox,
   setShowCommentBox,
@@ -75,7 +74,6 @@ export default function RoomSidebar({
       </div>
 
       <CommentsPanel
-        output={output}
         selectedRange={selectedRange}
         showCommentBox={showCommentBox}
         setShowCommentBox={

@@ -1,6 +1,5 @@
 
 export default function CommentsPanel({
-  output,
   selectedRange,
   showCommentBox,
   setShowCommentBox,
@@ -46,13 +45,6 @@ export default function CommentsPanel({
 
   return (
     <div className="mt-8">
-      <h3 className="font-semibold mb-2">
-        Output
-      </h3>
-
-      <div className="h-40 overflow-auto rounded bg-slate-900 border border-slate-800 p-3 text-sm text-slate-300 whitespace-pre-wrap">
-        {output || "Output will appear here"}
-      </div>
 
       {selectedRange && (
         <button
