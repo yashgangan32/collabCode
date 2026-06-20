@@ -7,7 +7,8 @@ import {
 import {
   createComment,
   getRoomComments,
-  updateCommentStatus
+  updateCommentStatus,
+  addReply
 } from "../services/commentService.js";
 
 const registerSocketHandlers = (io) => {
@@ -145,6 +146,23 @@ const registerSocketHandlers = (io) => {
         );
       }
     );
+
+    socket.on(
+  "add-reply",async ({commentId,text,}) => {
+    
+    const updatedComment =
+      await addReply(
+        commentId,
+        text
+      );
+    io.to(
+      updatedComment.roomId
+    ).emit(
+      "reply-added",
+      updatedComment
+    );
+  }
+);
 
     //handling while disconnecting
     socket.on("disconnecting", () => {

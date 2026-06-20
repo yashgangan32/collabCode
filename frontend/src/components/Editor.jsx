@@ -88,7 +88,7 @@ export default function Editor({
     <MonacoEditor
       height="100%"
       language={language}
-      theme="vs-dark"
+      theme="vs"
       value={code}
       onChange={(value) =>
         setCode(value || "")

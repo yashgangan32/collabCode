@@ -37,3 +37,24 @@ export const getRoomComments =
       }
     );
   };
+
+  export const addReply =
+  async (
+    commentId,
+    text
+  ) => {
+    return Comment.findByIdAndUpdate(
+      commentId,
+      {
+        $push: {
+          replies: {
+            text,
+          },
+        },
+      },
+      {
+        returnDocument:
+          "after",
+      }
+    );
+  };

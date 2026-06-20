@@ -28,6 +28,19 @@ const commentSchema =
         enum: ["open", "resolved"],
         default: "open",
       },
+      replies: [
+      {
+        text: {
+          type: String,
+          required: true,
+        },
+
+        createdAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
     },
     {
       timestamps: true,

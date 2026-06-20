@@ -289,6 +289,36 @@ export default function Room() {
     };
   }, []);
 
+  useEffect(() => {
+  const handleReplyAdded =
+    (
+      updatedComment
+    ) => {
+      setComments(
+        (prev) =>
+          prev.map(
+            (comment) =>
+              comment._id ===
+              updatedComment._id
+                ? updatedComment
+                : comment
+          )
+      );
+    };
+
+  socket.on(
+    "reply-added",
+    handleReplyAdded
+  );
+
+  return () => {
+    socket.off(
+      "reply-added",
+      handleReplyAdded
+    );
+  };
+}, []);
+
   return (
     <div className="h-screen bg-slate-950 text-white flex flex-col">
       <RoomHeader

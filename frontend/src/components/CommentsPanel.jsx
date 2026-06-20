@@ -1,4 +1,4 @@
-
+import { useState } from "react";
 export default function CommentsPanel({
   selectedRange,
   showCommentBox,
@@ -12,6 +12,9 @@ export default function CommentsPanel({
   filter,
   setFilter
 }) {
+
+  const [replyText, setReplyText] = useState("");
+  const [activeReplyComment, setActiveReplyComment] = useState(null);
 
   const openCount =
     comments.filter(
@@ -119,8 +122,8 @@ export default function CommentsPanel({
             setFilter("all")
           }
           className={`px-2 py-1 rounded ${filter === "all"
-              ? "bg-blue-600"
-              : "bg-slate-700"
+            ? "bg-blue-600"
+            : "bg-slate-700"
             }`}
         >
           All ({comments.length})
@@ -131,8 +134,8 @@ export default function CommentsPanel({
             setFilter("open")
           }
           className={`px-2 py-1 rounded ${filter === "open"
-              ? "bg-blue-600"
-              : "bg-slate-700"
+            ? "bg-blue-600"
+            : "bg-slate-700"
             }`}
         >
           Open ({openCount})
@@ -143,8 +146,8 @@ export default function CommentsPanel({
             setFilter("resolved")
           }
           className={`px-2 py-1 rounded ${filter === "resolved"
-              ? "bg-blue-600"
-              : "bg-slate-700"
+            ? "bg-blue-600"
+            : "bg-slate-700"
             }`}
         >
           Resolved ({resolvedCount})
@@ -207,6 +210,66 @@ export default function CommentsPanel({
               </div>
 
               <p>{comment.text}</p>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+
+                  setActiveReplyComment(
+                    comment._id
+                  );
+                }}
+                className="mt-2 text-sm text-blue-400"
+              >
+                Reply
+              </button>
+              {activeReplyComment ===
+                comment._id && (
+                  <div className="mt-2">
+                    <textarea
+                      value={replyText}
+                      onChange={(e) =>
+                        setReplyText(
+                          e.target.value
+                        )
+                      }
+                      rows={2}
+                      placeholder="Write reply..."
+                      className="w-full rounded bg-slate-900 border border-slate-700 p-2"
+                    />
+
+                    <button
+                      onClick={() => {
+                        socket.emit(
+                          "add-reply",
+                          {
+                            commentId:
+                              comment._id,
+
+                            text: replyText,
+                          }
+                        );
+
+                        setReplyText("");
+                        setActiveReplyComment(
+                          null
+                        );
+                      }}
+                      className="mt-2 px-2 py-1 rounded bg-green-600"
+                    >
+                      Send Reply
+                    </button>
+                  </div>
+                )}
+              {comment.replies?.map(
+                (reply, index) => (
+                  <div
+                    key={index}
+                    className="ml-4 mt-2 border-l border-slate-700 pl-3 text-sm"
+                  >
+                    {reply.text}
+                  </div>
+                )
+              )}
             </div>
           ))}
       </div>
