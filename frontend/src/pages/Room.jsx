@@ -12,13 +12,14 @@ export default function Room() {
   const [isRunning, setIsRunning] = useState(false);
   const [language, setLanguage] = useState("javascript");
   const [code, setCode] = useState(`console.log("Hello World")`);
+  const [selectedRange,setSelectedRange] = useState(null);
 
   const copyRoomId = async () => {
     await navigator.clipboard.writeText(roomId);
     alert("Room ID copied");
   };
 
-  //USEEFFECTS
+  //to handle required things when join
 useEffect(() => {
   socket.connect();
 
@@ -132,6 +133,7 @@ useEffect(() => {
     };
   }, [])
 
+  //handling sync of output
   useEffect(() => {
     const handleOutput = (output) => {
       console.log(
@@ -156,6 +158,7 @@ useEffect(() => {
   }, []);
 
 
+  //handling executaion of code and syncing
   const handleRunCode = async () => {
     try {
       console.log("Run clicked");
@@ -183,6 +186,8 @@ useEffect(() => {
     }
   }
 
+
+  //handling language syncing
   useEffect(() => {
     const handleLanguage =
       (language) => {
@@ -246,6 +251,9 @@ useEffect(() => {
             code={code}
             setCode={handleCodeChange}
             language={language}
+            setSelectedRange={
+              setSelectedRange
+            }
           />
         </div>
 
@@ -307,6 +315,14 @@ useEffect(() => {
           </div>
 
           <div className="mt-8">
+            {selectedRange && (
+  <button
+    className="mb-3 px-3 py-2 rounded bg-blue-600"
+  >
+    Add Comment
+  </button>
+)}
+
             <h3 className="font-semibold mb-2">
               Output
             </h3>
