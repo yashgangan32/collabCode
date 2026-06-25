@@ -1,0 +1,612 @@
+
+# Collaborative Coding Platform - Setup Documentation (Phase 1)
+
+## Purpose of this Document
+
+This document only covers the setup completed so far. It explains:
+
+- What tools were chosen
+- Why they were chosen
+- How they were set up
+- Advantages and disadvantages
+- Current folder structure
+
+---
+
+# Project Root Structure
+
+```text
+collab-code/
+
+├── frontend/
+├── backend/
+├── docs/
+├── README.md
+└── .gitignore
+```
+
+## Why separate frontend and backend?
+
+Frontend and backend have different responsibilities.
+
+Frontend:
+- User interface
+- Editor
+- Routing
+- Real-time client connection
+
+Backend:
+- APIs
+- WebSocket server
+- Room management
+- Code execution
+
+Benefits:
+- Easier maintenance
+- Easier deployment
+- Better scalability
+
+Tradeoff:
+- Slightly more setup complexity
+
+---
+
+# Frontend Setup
+
+## What is React?
+
+React is a JavaScript library for building user interfaces using reusable components.
+
+Example:
+
+Instead of writing one huge page, we build:
+
+- Navbar component
+- Editor component
+- Output component
+
+and combine them together.
+
+### Why React?
+
+Chosen because:
+
+- Industry standard
+- Large ecosystem
+- Component based
+- Easy state management
+- Works well with real-time applications
+
+### Pros
+
+- Reusable components
+- Fast UI updates
+- Huge community
+
+### Cons
+
+- Learning curve
+- Can become complex in large applications
+
+---
+
+## What is Vite?
+
+Vite is a frontend development and build tool.
+
+It starts a development server and bundles the application for production.
+
+### Setup
+
+Created using:
+
+```bash
+npm create vite@latest frontend -- --template react
+```
+
+Installed dependencies:
+
+```bash
+cd frontend
+npm install
+```
+
+### Why Vite?
+
+Older React projects often used Create React App.
+
+Vite is now preferred because:
+
+- Faster startup
+- Faster hot reload
+- Smaller configuration
+- Better developer experience
+
+### Pros
+
+- Extremely fast startup
+- Fast rebuilds
+- Modern tooling
+
+### Cons
+
+- Some older tutorials use different tooling
+
+---
+
+## What is Tailwind CSS?
+
+Tailwind is a utility-first CSS framework.
+
+Instead of writing CSS files for every style, we apply utility classes directly in components.
+
+Example:
+
+```html
+<div class="flex justify-center items-center">
+```
+
+### Setup Performed
+
+Installed:
+
+```bash
+npm install tailwindcss @tailwindcss/vite
+```
+
+Configured in:
+
+vite.config.js
+
+```js
+import tailwindcss from "@tailwindcss/vite";
+
+plugins: [
+  react(),
+  tailwindcss()
+]
+```
+
+Added to:
+
+src/index.css
+
+```css
+@import "tailwindcss";
+```
+
+### Why Tailwind?
+
+For this project there will be:
+
+- Editor screens
+- Room pages
+- User lists
+- Output panels
+
+Tailwind allows building UI much faster.
+
+### Pros
+
+- Fast development
+- Consistent styling
+- Responsive utilities
+- Minimal CSS files
+
+### Cons
+
+- Long class names
+- HTML can become crowded
+
+---
+
+## React Router
+
+Installed:
+
+```bash
+npm install react-router-dom
+```
+
+### Purpose
+
+Allows multiple pages.
+
+Future routes:
+
+```text
+/
+/room/:roomId
+```
+
+Without React Router the application would effectively be a single page.
+
+### Pros
+
+- Client-side routing
+- Fast navigation
+
+### Cons
+
+- Additional learning curve
+
+---
+
+## Socket.IO Client
+
+Installed:
+
+```bash
+npm install socket.io-client
+```
+
+### Purpose
+
+Connect frontend to WebSocket server.
+
+Future usage:
+
+- Join room
+- Send code updates
+- Receive code updates
+- User presence
+
+### Why not normal APIs?
+
+REST APIs require repeated requests.
+
+Socket.IO provides:
+
+- Persistent connection
+- Real-time communication
+- Lower latency
+
+### Pros
+
+- Real-time communication
+- Automatic reconnection
+
+### Cons
+
+- More complex than REST
+
+---
+
+## Monaco Editor
+
+Installed:
+
+```bash
+npm install @monaco-editor/react
+```
+
+### What is Monaco?
+
+Monaco is the editor that powers VS Code.
+
+### Purpose
+
+Provides:
+
+- Syntax highlighting
+- Code editing
+- Multiple languages
+- Professional editor experience
+
+### Why not a textarea?
+
+A textarea cannot provide:
+
+- Syntax coloring
+- IntelliSense
+- Editor features
+
+### Pros
+
+- Professional experience
+- Rich feature set
+
+### Cons
+
+- Larger bundle size
+
+---
+
+# Frontend Folder Structure
+
+```text
+src/
+
+├── pages/
+├── components/
+├── layouts/
+├── hooks/
+├── services/
+├── socket/
+├── routes/
+├── utils/
+├── App.jsx
+├── main.jsx
+└── index.css
+```
+
+## pages/
+
+Contains complete pages.
+
+Examples:
+
+- Home.jsx
+- Room.jsx
+
+---
+
+## components/
+
+Reusable UI pieces.
+
+Examples:
+
+- Editor
+- Navbar
+- OutputPanel
+
+---
+
+## layouts/
+
+Shared page structures.
+
+Examples:
+
+- MainLayout
+
+---
+
+## hooks/
+
+Custom React hooks.
+
+Future examples:
+
+- useSocket
+- useRoom
+
+---
+
+## services/
+
+Backend communication layer.
+
+Future examples:
+
+- roomService
+- executionService
+
+---
+
+## socket/
+
+Socket configuration.
+
+Keeps a single reusable socket connection.
+
+---
+
+## routes/
+
+Route definitions and navigation configuration.
+
+---
+
+## utils/
+
+Helper functions.
+
+Future examples:
+
+- generateRoomId
+- formatDate
+
+---
+
+## App.jsx
+
+Main React component.
+
+Will contain routing and top-level structure.
+
+---
+
+## main.jsx
+
+Application entry point.
+
+Responsible for rendering React into the browser.
+
+---
+
+## index.css
+
+Global styles.
+
+Currently imports Tailwind.
+
+---
+
+# Backend Setup
+
+## What is Node.js?
+
+Node.js allows JavaScript to run outside the browser.
+
+### Why Node?
+
+- Same language frontend and backend
+- Large ecosystem
+- Great for real-time applications
+
+### Pros
+
+- Fast development
+- Huge package ecosystem
+
+### Cons
+
+- Single-threaded execution model
+
+---
+
+## What is Express?
+
+Express is a backend web framework for Node.js.
+
+### Setup
+
+```bash
+npm install express
+```
+
+### Purpose
+
+Used to create:
+
+- APIs
+- Routes
+- Middleware
+
+### Pros
+
+- Lightweight
+- Flexible
+
+### Cons
+
+- Requires project structure decisions
+
+---
+
+## What is Socket.IO?
+
+Socket.IO enables real-time communication between client and server.
+
+### Setup
+
+```bash
+npm install socket.io
+```
+
+### Purpose
+
+Future responsibilities:
+
+- Room management
+- Real-time code updates
+- User presence
+
+### Pros
+
+- Automatic reconnection
+- Room support
+
+### Cons
+
+- Slight overhead compared to raw WebSockets
+
+---
+
+## What is CORS?
+
+Installed:
+
+```bash
+npm install cors
+```
+
+### Purpose
+
+Allows frontend and backend running on different ports to communicate.
+
+Without it:
+
+Browser security restrictions would block requests.
+
+---
+
+## What is dotenv?
+
+Installed:
+
+```bash
+npm install dotenv
+```
+
+### Purpose
+
+Loads environment variables from .env files.
+
+Future examples:
+
+- Database URL
+- Port number
+
+Benefits:
+
+- Keeps secrets out of code
+
+---
+
+## What is Nodemon?
+
+Installed:
+
+```bash
+npm install nodemon --save-dev
+```
+
+### Purpose
+
+Automatically restarts server when files change.
+
+Without nodemon:
+
+Server must be restarted manually after every edit.
+
+---
+
+# Backend Folder Structure
+
+```text
+backend/
+
+src/
+
+├── server.js
+├── socket/
+├── routes/
+├── controllers/
+├── models/
+├── services/
+├── middleware/
+└── config/
+```
+
+This structure was chosen to keep responsibilities separated as the project grows.
+
+---
+
+# Current Status
+
+Completed:
+
+- Project planning
+- Frontend setup
+- Backend setup
+- Tailwind setup
+- Socket.IO packages installed
+- Monaco installed
+- Folder structure created
+
+Next Step:
+
+Integrate Monaco Editor and create the first editor page.

@@ -1,0 +1,112 @@
+
+Collaborative Coding Platform - V1 Documentation
+
+Project Goal
+A production-inspired collaborative coding platform built with free technologies.
+
+Tech Stack
+Frontend: React, Vite, Tailwind CSS, Monaco Editor, Socket.IO Client
+Backend: Node.js, Express, Socket.IO, MongoDB Atlas, Mongoose
+
+V1 Features
+- Room System
+- Real-Time Code Sync
+- User Presence
+- MongoDB Persistence
+- JavaScript Execution
+- Python Execution
+- C++ Execution
+- Collaborative Output
+- Language Selector
+- Output Persistence
+- Language Persistence
+- Unique Execution Files
+
+Database Schema (Room)
+- roomId
+- code
+- language
+- lastOutput
+- createdAt
+- updatedAt
+
+Architecture
+Frontend
+ -> Socket.IO + REST API
+ -> Express Server
+ -> MongoDB + Execution Service
+
+Execution Flow
+Run Button
+ -> API
+ -> Controller
+ -> Execution Service
+ -> Runtime
+ -> Output
+ -> Broadcast to Room
+
+Frontend Structure
+src/
+├── pages/Room.jsx
+├── components/Editor.jsx
+├── services/executionService.js
+├── socket.js
+└── main.jsx
+
+Backend Structure
+src/
+├── models/Room.js
+├── services/roomService.js
+├── services/executionService.js
+├── controllers/executionController.js
+├── routes/executionRoutes.js
+├── sockets/socketHandler.js
+├── config/db.js
+└── server.js
+
+Important Services
+roomService.js
+- getOrCreateRoom
+- updateRoomCode
+- updateRoomLanguage
+- updateRoomOutput
+
+executionService.js
+- executeCode
+- JS/Python/C++ execution
+- temp file creation
+- cleanup
+
+Major Bugs Fixed
+1. Room switching required refresh
+2. Blank editor caused by persisted empty code
+3. Collaborative output sync issue
+4. Temp file collisions
+
+Important Improvements
+- Persist code
+- Persist language
+- Persist output
+- Unique temp execution files using UUIDs
+
+Known V1 Limitations
+- Direct execution on server
+- No Docker sandbox
+- No authentication
+- No rate limiting
+- No execution queue
+- No save debouncing
+
+Planned V2
+- Comments & annotations
+- Suggested changes
+- Approval workflow
+- Proposal branches
+- Voting & merge system
+
+Resume Highlights
+- Real-time collaboration
+- WebSockets
+- MongoDB persistence
+- Multi-language execution
+- Production-oriented architecture thinking

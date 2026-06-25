@@ -1,0 +1,193 @@
+
+Collaborative Coding Platform - Setup Documentation (Updated)
+
+ADDED SECTION: APPLICATION FLOW
+
+==================================================
+FRONTEND FLOW
+==================================================
+
+Application Startup
+
+main.jsx
+    ↓
+App.jsx
+    ↓
+Routes
+    ↓
+Page
+    ↓
+Components
+
+Explanation:
+
+main.jsx
+- Entry point of React application.
+- Responsible for rendering App component into browser.
+
+App.jsx
+- Root component.
+- Contains routing and global application structure.
+
+pages/
+- Represents complete screens.
+- Example:
+    Home.jsx
+    Room.jsx
+
+components/
+- Reusable UI pieces.
+- Example:
+    Editor
+    Navbar
+    OutputPanel
+
+services/
+- Handles API communication.
+- Keeps fetch/axios logic outside UI.
+
+socket/
+- Maintains reusable Socket.IO connection.
+- Used by components/pages needing realtime updates.
+
+routes/
+- Route definitions.
+- Example:
+    /
+    /room/:roomId
+
+utils/
+- Helper functions.
+- Example:
+    generateRoomId()
+    formatDate()
+
+Typical Frontend Flow
+
+User opens Room
+      ↓
+Room.jsx
+      ↓
+Editor Component
+      ↓
+Socket Connection
+      ↓
+Backend
+
+==================================================
+BACKEND FLOW
+==================================================
+
+Typical API Request
+
+Request
+   ↓
+Route
+   ↓
+Controller
+   ↓
+Service
+   ↓
+Model
+   ↓
+Database
+   ↓
+Response
+
+Example
+
+POST /rooms
+      ↓
+roomRoutes.js
+      ↓
+roomController.js
+      ↓
+roomService.js
+      ↓
+Room Model
+      ↓
+MongoDB
+
+Explanation:
+
+routes/
+- Defines endpoint.
+- Delegates work.
+
+controllers/
+- Handles request.
+- Validates data.
+- Calls services.
+- Returns response.
+
+services/
+- Business logic.
+- Main application behaviour.
+
+models/
+- Database schemas.
+
+config/
+- Configuration.
+- Database setup.
+- Environment setup.
+
+middleware/
+- Validation.
+- Logging.
+- Authentication (future).
+
+socket/
+- Handles realtime events.
+- Join room.
+- Leave room.
+- Broadcast code changes.
+
+==================================================
+REALTIME EDIT FLOW
+==================================================
+
+User A Types
+      ↓
+Editor.jsx
+      ↓
+socket.emit("code-change")
+      ↓
+Socket.IO Server
+      ↓
+Broadcast To Room
+      ↓
+User B Receives Event
+      ↓
+Editor Updates
+
+==================================================
+FUTURE CODE EXECUTION FLOW
+==================================================
+
+User Clicks Run
+      ↓
+Frontend
+      ↓
+POST /run
+      ↓
+Route
+      ↓
+Controller
+      ↓
+Execution Service
+      ↓
+Execution Layer
+      ↓
+Output Returned
+      ↓
+Frontend Displays Output
+
+==================================================
+NOTE
+==================================================
+
+This section should be appended to the existing
+setup documentation file. It explains how data
+flows through the application and why the project
+structure was designed this way.
